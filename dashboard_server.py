@@ -729,7 +729,7 @@ async def handle_start_clan_join(request: web.Request) -> web.Response:
 
 # ==================== SERVER BOOTSTRAP ====================
 
-async def start_web_dashboard(host: str = "0.0.0.0", port: int = 20333):
+async def start_web_dashboard(host: str = "0.0.0.0", port: int = 30058):
     app = web.Application()
 
     app.router.add_get("/", handle_index)
