@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUILD GLORY — Master Control Panel</title>
+    <style>
+        :root {
+            --bg-deep: #050814;
+            --card-surface: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(245, 158, 11, 0.2);
+            --accent-cyan: #38bdf8;
+            --accent-gold: #f59e0b;
+            --gold-gradient: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+            --emerald-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --success-glow: #34d399;
+            --danger-glow: #ef4444;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-deep);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(14, 165, 233, 0.08) 0%, transparent 45%),
+                linear-gradient(to bottom, #030712, #050814);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 14px;
+        }
+
+        .top-navbar {
+            width: 100%;
+            max-width: 520px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(14px);
+            border: 1px solid var(--card-border);
+            padding: 12px 16px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+        }
+
+        .brand-title {
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--gold-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-actions { display: flex; align-items: center; gap: 6px; }
+
+        .top-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .top-btn:hover { background: rgba(255, 255, 255, 0.12); }
+        .top-btn.btn-play-all { background: var(--emerald-gradient); border-color: rgba(16, 185, 129, 0.4); color: #fff; }
+        .top-btn.stop-active { background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.35); color: var(--danger-glow); }
+        .top-btn.btn-danger { background: rgba(239, 68, 68, 0.18); border-color: rgba(239, 68, 68, 0.4); color: var(--danger-glow); }
+        .top-btn.btn-danger:hover { background: rgba(239, 68, 68, 0.3); }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            width: 100%;
+            max-width: 520px;
+        }
+
+        .premium-card {
+            background: var(--card-surface);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+        }
+
+        .card-header-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+        }
+
+        .live-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(52, 211, 153, 0.12);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: var(--success-glow);
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--success-glow);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.4); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+
+        .guild-profile-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .guild-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            object-fit: cover;
+            border: 2px solid rgba(245, 158, 11, 0.4);
+            background: #0f172a;
+        }
+
+        .guild-info h3 {
+            font-size: 19px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .guild-meta-tags {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: var(--text-sub);
+            flex-wrap: wrap;
+        }
+
+        .tag-region {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: var(--accent-cyan);
+            font-weight: 700;
+        }
+
+        .tag-lvl {
+            background: var(--gold-gradient);
+            color: #030712;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 800;
+        }
+
+        .btn-set-id {
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            color: var(--accent-gold);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .session-box {
+            background: rgba(3, 7, 18, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 16px;
+        }
+
+        .session-flex {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #f59e0b, #38bdf8);
+            border-radius: 4px;
+            transition: width 0.5s;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .metric-card {
+            background: rgba(3, 7, 18, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 12px;
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        .metric-card span {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+
+        .metric-card strong {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        .inner-tabs {
+            display: flex;
+            gap: 6px;
+            background: rgba(3, 7, 18, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 8px;
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-gold);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        .form-group { margin-bottom: 12px; text-align: left; }
+        .form-group label { display: block; font-size: 11px; color: var(--text-sub); text-transform: uppercase; margin-bottom: 6px; font-weight: 700; }
+        
+        .form-input {
+            width: 100%;
+            background: rgba(3, 7, 18, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .form-input:focus { border-color: var(--accent-gold); }
+
+        .action-btn {
+            width: 100%;
+            background: var(--gold-gradient);
+            color: #030712;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .action-btn-secondary {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-cyan);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            margin-bottom: 8px;
+        }
+
+        .action-btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger-glow);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            margin-top: 10px;
+        }
+        .action-btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .account-item {
+            background: rgba(3, 7, 18, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .account-left strong { display: block; color: #fff; font-size: 13px; }
+        .account-left span { color: var(--text-sub); font-size: 11px; }
+        .account-actions { display: flex; gap: 6px; }
+
+        .btn-mini {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-mini-play { background: var(--emerald-gradient); color: #fff; }
+        .btn-mini-del { background: rgba(239, 68, 68, 0.15); color: var(--danger-glow); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .traffic-lights { display: flex; gap: 5px; align-items: center; }
+        .traffic-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+        .dot-red { background-color: #ef4444; }
+        .dot-yellow { background-color: #f59e0b; }
+        .dot-green { background-color: #22c55e; }
+
+        .clear-logs-btn {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger-glow);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .terminal-logs {
+            background: #02040a;
+            border: 1px solid rgba(245, 158, 11, 0.15);
+            border-radius: 14px;
+            padding: 14px;
+            max-height: 260px;
+            overflow-y: auto;
+            font-family: 'Consolas', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #cbd5e1;
+        }
+
+        .log-time { color: #64748b; margin-right: 6px; }
+        .log-info { color: #38bdf8; }
+        .log-success { color: #34d399; font-weight: 700; }
+        .log-warning { color: #fbbf24; }
+        .log-error { color: #f87171; font-weight: 700; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(3, 7, 18, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 24px;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .modal-card h3 { color: var(--accent-gold); margin-bottom: 16px; font-size: 16px; font-weight: 800; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 18px; }
+        .modal-btn { flex: 1; padding: 10px; border-radius: 10px; font-weight: 700; cursor: pointer; border: none; font-size: 13px; }
+        .btn-cancel { background: rgba(255, 255, 255, 0.08); color: var(--text-sub); }
+        .btn-submit { background: var(--gold-gradient); color: #030712; }
+    </style>
+</head>
+<body>
+
+    <div class="top-navbar">
+        <span class="brand-title">👑 GUILD GLORY</span>
+        <div class="nav-actions">
+            <button class="top-btn" onclick="openAddAccountModal()">+ Add</button>
+            <button class="top-btn btn-play-all" onclick="playAllAccounts()">▶ Play</button>
+            <button id="pause-toggle-btn" class="top-btn stop-active" onclick="togglePauseAll()">Stop Bot</button>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <!-- Guild Core Tracker Card -->
+        <div class="premium-card">
+            <div class="card-header-flex">
+                <span class="card-title">Guild Live Tracker</span>
+                <div class="live-pill">
+                    <span class="pulse-dot"></span> RUNNING
+                </div>
+            </div>
+
+            <div class="guild-profile-row">
+                <img src="https://raw.githubusercontent.com/ronobiswas874-sketch/Images/refs/heads/main/1792063565823.png" alt="Guild Emblem" class="guild-avatar" onerror="this.src='https://via.placeholder.com/64/0f172a/fbbf24?text=GG';">
+                <div class="guild-info">
+                    <h3 id="info-clan-name">No Clan Set</h3>
+                    <div class="guild-meta-tags">
+                        <span>ID: <strong id="info-clan-id" style="color:#fff;">Not Set</strong></span>
+                        <button class="btn-set-id" onclick="promptSetClanId()">✏️ Set ID</button>
+                        <span class="tag-region" id="info-clan-region">IND</span>
+                        <span class="tag-lvl">LV.<span id="info-clan-level">-</span></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="session-box">
+                <div class="session-flex">
+                    <span>Active Session Uptime</span>
+                    <span id="session-countdown" style="color: var(--accent-cyan); font-weight:700;">00h 00m 00s</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-bar" id="session-progress-bar"></div>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span>Initial XP</span>
+                    <strong id="info-clan-xp-old" style="color: var(--text-main);">0</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Current XP</span>
+                    <strong id="info-clan-xp-live">0</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Gained</span>
+                    <strong id="info-clan-xp-gained" style="color: var(--success-glow);">+0</strong>
+                </div>
+            </div>
+
+            <!-- Mini Tab Switcher -->
+            <div class="inner-tabs">
+                <button class="tab-btn active" onclick="switchPane('pane-accounts', this)">Accounts (<span id="count-acc">0</span>)</button>
+                <button class="tab-btn" onclick="switchPane('pane-gen', this)">⚡ Generator</button>
+                <button class="tab-btn" onclick="switchPane('pane-join', this)">🛡️ Auto Join</button>
+            </div>
+
+            <!-- Accounts Pane -->
+            <div id="pane-accounts" class="tab-pane active">
+                <div id="accounts-list-box" style="max-height: 200px; overflow-y: auto;">
+                    <div style="text-align:center; color: var(--text-sub); padding: 15px; font-size:12px;">Loading accounts...</div>
+                </div>
+                <!-- Clear All Guests & Wipe Cache Button -->
+                <button class="action-btn action-btn-danger" onclick="clearAllGuestsAndCache()">🗑️ Delete All Guests & Cache</button>
+            </div>
+
+            <!-- Generator Pane -->
+            <div id="pane-gen" class="tab-pane">
+                <div class="form-group">
+                    <label>Select Server Region</label>
+                    <select id="gen-region" class="form-input">
+                        <option value="IND" selected>India (IND)</option>
+                        <option value="BD">Bangladesh (BD)</option>
+                        <option value="SG">Singapore (SG)</option>
+                        <option value="ID">Indonesia (ID)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Account Count</label>
+                    <input type="number" id="gen-count" class="form-input" value="4" min="1" max="50">
+                </div>
+                <button class="action-btn" onclick="startGenerator()">Generate & Auto-Start Accounts</button>
+            </div>
+
+            <!-- Auto Join Pane -->
+            <div id="pane-join" class="tab-pane">
+                <div class="form-group">
+                    <label>Target Guild (Clan) ID</label>
+                    <input type="text" id="clan-id" class="form-input" placeholder="Enter Clan ID (e.g. 3012345678)">
+                </div>
+                <div class="form-group">
+                    <label>Accounts File Source</label>
+                    <select id="clan-region" class="form-input">
+                        <option value="IND" selected>accounts-IND.json</option>
+                        <option value="BD">accounts-BD.json</option>
+                        <option value="SG">accounts-SG.json</option>
+                    </select>
+                </div>
+                <button class="action-btn action-btn-secondary" onclick="saveAndTrackClanFromInput()">🎯 Set & Track Clan Info</button>
+                <button class="action-btn" onclick="startClanJoin()">Start Bulk Guild Joining</button>
+            </div>
+        </div>
+
+        <!-- Terminal Logs Card -->
+        <div class="premium-card">
+            <div class="card-header-flex" style="margin-bottom: 12px; padding-bottom: 10px;">
+                <span class="card-title">Live System Console</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button class="clear-logs-btn" onclick="clearLogs()">Clear</button>
+                    <div class="traffic-lights">
+                        <span class="traffic-dot dot-red"></span>
+                        <span class="traffic-dot dot-yellow"></span>
+                        <span class="traffic-dot dot-green"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="terminal-logs" id="terminal-logs">
+                <div class="log-line"><span class="log-time">[Init]</span> <span class="log-info">Connecting to Guild Glory Core...</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Account Modal -->
+    <div class="modal-overlay" id="addAccountModal">
+        <div class="modal-card">
+            <h3>Add New Account</h3>
+            <div class="form-group">
+                <label>Account UID</label>
+                <input type="text" id="modalUidInput" class="form-input" placeholder="Enter UID">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="modalPasswordInput" class="form-input" placeholder="Enter Password">
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn btn-cancel" onclick="closeAddAccountModal()">Cancel</button>
+                <button class="modal-btn btn-submit" onclick="submitAddAccount()">Save Account</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentClanId = localStorage.getItem('guild_glory_clan_id') || "";
+        let currentRegion = localStorage.getItem('guild_glory_region') || "IND";
+        let isAllPaused = false;
+
+        function formatUptime(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`;
+        }
+
+        function switchPane(paneId, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(paneId).classList.add('active');
+        }
+
+        function promptSetClanId() {
+            const entered = prompt("Enter Clan ID to track:", currentClanId);
+            if (entered !== null) {
+                const clean = entered.trim();
+                if (clean) setClanId(clean, currentRegion);
+            }
+        }
+
+        function saveAndTrackClanFromInput() {
+            const inputVal = document.getElementById('clan-id').value.trim();
+            const regionVal = document.getElementById('clan-region').value.replace('accounts-', '').replace('.json', '');
+            if (!inputVal) {
+                alert("Please enter a valid Clan ID!");
+                return;
+            }
+            setClanId(inputVal, regionVal);
+            alert(`Clan ID set to ${inputVal}. Tracking live info now.`);
+        }
+
+        function setClanId(newClanId, region) {
+            currentClanId = newClanId;
+            currentRegion = region || currentRegion;
+            localStorage.setItem('guild_glory_clan_id', currentClanId);
+            localStorage.setItem('guild_glory_region', currentRegion);
+            
+            document.getElementById('info-clan-id').textContent = currentClanId;
+            document.getElementById('info-clan-region').textContent = currentRegion;
+            document.getElementById('clan-id').value = currentClanId;
+            
+            fetchGuildInfo();
+        }
+
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/stats');
+                if (!res.ok) return;
+                const d = await res.json();
+
+                const uptimeSec = d.uptime || 0;
+                document.getElementById('session-countdown').textContent = formatUptime(uptimeSec);
+                
+                const pct = Math.min(100, ((uptimeSec % 43200) / 43200) * 100);
+                document.getElementById('session-progress-bar').style.width = pct + '%';
+                document.getElementById('count-acc').textContent = d.total_accounts || 0;
+
+                const box = document.getElementById('accounts-list-box');
+                if (!d.accounts || d.accounts.length === 0) {
+                    box.innerHTML = `<div style="text-align:center; color: var(--text-sub); padding: 15px; font-size:12px;">No accounts loaded yet.</div>`;
+                } else {
+                    box.innerHTML = d.accounts.map(acc => `
+                        <div class="account-item">
+                            <div class="account-left">
+                                <strong>${acc.nickname || 'Unknown'}</strong>
+                                <span>UID: ${acc.uid} | Lvl ${acc.level} (${acc.progress_pct}%)</span>
+                            </div>
+                            <div class="account-actions">
+                                <button class="btn-mini btn-mini-play" onclick="playAccount('${acc.uid}')">▶ Play</button>
+                                <button class="btn-mini btn-mini-del" onclick="deleteAccount('${acc.uid}')">✕</button>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchLogs() {
+            try {
+                const res = await fetch('/api/logs');
+                if (!res.ok) return;
+                const data = await res.json();
+                const terminal = document.getElementById('terminal-logs');
+                if (data.logs && data.logs.length > 0) {
+                    terminal.innerHTML = data.logs.join('<br>');
+                    terminal.scrollTop = terminal.scrollHeight;
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchGuildInfo() {
+            if (!currentClanId) {
+                document.getElementById('info-clan-name').textContent = 'No Clan Set';
+                document.getElementById('info-clan-id').textContent = 'Not Set';
+                document.getElementById('info-clan-level').textContent = '-';
+                document.getElementById('info-clan-xp-old').textContent = '0';
+                document.getElementById('info-clan-xp-live').textContent = '0';
+                document.getElementById('info-clan-xp-gained').textContent = '+0';
+                return;
+            }
+
+            try {
+                const guildRes = await fetch(`/api/guildinfo?guild_id=${currentClanId}&region=${currentRegion}&key=XEROX_MODS`);
+                if (!guildRes.ok) return;
+
+                const responseJson = await guildRes.json();
+                const guildData = responseJson.clan_basic_info || responseJson;
+                
+                if (guildData) {
+                    const currentXp = Number(guildData['Total guild xp'] || guildData['xp'] || 0);
+                    const baselineXp = Number(guildData.old_xp || currentXp);
+                    const gainedXp = Number(guildData.gained_exp || 0);
+                    const clanLevel = guildData.clan_level || '1';
+
+                    document.getElementById('info-clan-name').textContent = guildData.clan_name || 'GUILD • ' + currentClanId.slice(-5);
+                    document.getElementById('info-clan-id').textContent = guildData.clan_id || currentClanId;
+                    document.getElementById('info-clan-region').textContent = guildData.region || currentRegion;
+                    document.getElementById('info-clan-level').textContent = clanLevel;
+                    
+                    document.getElementById('info-clan-xp-old').textContent = baselineXp.toLocaleString();
+                    document.getElementById('info-clan-xp-live').textContent = currentXp.toLocaleString();
+                    document.getElementById('info-clan-xp-gained').textContent = (gainedXp >= 0 ? `+${gainedXp}` : gainedXp).toLocaleString();
+                }
+            } catch (err) {
+                console.error('Error fetching guild info:', err);
+            }
+        }
+
+        async function playAccount(uid) {
+            await fetch('/api/account/play', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ uid }) 
+            });
+            fetchStats();
+        }
+
+        async function playAllAccounts() {
+            await fetch('/api/account/play_all', { method: 'POST' });
+            fetchStats();
+        }
+
+        async function deleteAccount(uid) {
+            if (!confirm(`Delete ${uid}?`)) return;
+            await fetch('/api/account/delete', { 
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'}, 
+                body: JSON.stringify({ uid }) 
+            });
+            fetchStats();
+        }
+
+        // ⭐ NEW: ক্লিয়ার অল ফাংশন (Delete all guests & token_cache.json)
+        async function clearAllGuestsAndCache() {
+            if (!confirm("⚠️ Are you sure you want to DELETE ALL guest accounts and wipe token_cache.json? This gives you a fresh start!")) return;
+            try {
+                const res = await fetch('/api/account/clear_all', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'}
+                });
+                const d = await res.json();
+                if (d.status === 'ok') {
+                    alert("✅ All guest accounts and token_cache.json deleted! You can now generate fresh accounts.");
+                    fetchStats();
+                    fetchLogs();
+                } else {
+                    alert("Error: " + (d.error || "Failed to clear accounts"));
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function togglePauseAll() {
+            const btn = document.getElementById('pause-toggle-btn');
+            await fetch('/api/account/pause_all', { method: 'POST' });
+            isAllPaused = !isAllPaused;
+            if (isAllPaused) {
+                btn.textContent = 'Restart Bot';
+                btn.classList.remove('stop-active');
+            } else {
+                btn.textContent = 'Stop Bot';
+                btn.classList.add('stop-active');
+            }
+            fetchStats();
+        }
+
+        async function clearLogs() {
+            await fetch('/api/logs/clear', { method: 'POST' });
+            fetchLogs();
+        }
+
+        async function startGenerator() {
+            const region = document.getElementById('gen-region').value;
+            const count = document.getElementById('gen-count').value;
+            alert(`Generating ${count} accounts in region ${region}... They will automatically start botting once created.`);
+            await fetch('/api/generator/start', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ region, count })
+            });
+        }
+
+        async function startClanJoin() {
+            const clan_id = document.getElementById('clan-id').value.trim();
+            const region = document.getElementById('clan-region').value;
+            if (!clan_id) return alert('Enter Clan ID first!');
+            
+            setClanId(clan_id, region.replace('accounts-', '').replace('.json', ''));
+            alert(`Clan Joiner started for Guild ${clan_id}. Follow logs below.`);
+            await fetch('/api/clan/join', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ clan_id, region })
+            });
+        }
+
+        function openAddAccountModal() { document.getElementById('addAccountModal').style.display = 'flex'; }
+        function closeAddAccountModal() { document.getElementById('addAccountModal').style.display = 'none'; }
+
+        async function submitAddAccount() {
+            const uid = document.getElementById('modalUidInput').value.trim();
+            const password = document.getElementById('modalPasswordInput').value.trim();
+            if (!uid || !password) return alert('Enter UID & Password');
+
+            const res = await fetch('/api/account/add', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ uid, password })
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+                closeAddAccountModal();
+                fetchStats();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (currentClanId) {
+                document.getElementById('info-clan-id').textContent = currentClanId;
+                document.getElementById('clan-id').value = currentClanId;
+                document.getElementById('info-clan-region').textContent = currentRegion;
+            } else {
+                document.getElementById('info-clan-id').textContent = 'Not Set';
+            }
+            
+            fetchGuildInfo();
+            fetchStats();
+            fetchLogs();
+            setInterval(fetchStats, 2000);
+            setInterval(fetchLogs, 2500);
+            setInterval(fetchGuildInfo, 6000);
+        });
+    </script>
+</body>
+</html>
